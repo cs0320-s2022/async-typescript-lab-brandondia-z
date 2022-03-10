@@ -1,22 +1,28 @@
 // TODO: select the list element where the suggestions should go, and all three dropdown elements
 //  HINT: look at the HTML
-const suggestions = document.querySelector('#suggestions') as HTMLElement
+const suggestions = document.querySelector('#suggestions') as HTMLInputElement
 
 // Here, when the value of sun is changed, we will call the method postAndUpdate.
 // TODO: Do the same for moon and rising
-const sunChange = document.querySelector('#sun') as HTMLFormElement
-const moonChange = document.querySelector("#moon") as HTMLFormElement
-const risingChange = document.querySelector('#rising') as HTMLFormElement
+const sunChange = document.querySelector('#sun') as HTMLInputElement
+const moonChange = document.querySelector("#moon") as HTMLInputElement
+const risingChange = document.querySelector('#rising') as HTMLInputElement
 
 sunChange.addEventListener("change", () => postAndUpdate())
 moonChange.addEventListener("change", () => postAndUpdate())
 risingChange.addEventListener("change", () => postAndUpdate())
 
 // TODO: Define a type for the request data object here.
-type MatchesRequestData = {"sun": string, "moon": string, "rising": string}
+type MatchesRequestData = {
+  "sun": string,
+  "moon": string,
+  "rising": string
+}
 
 // TODO: Define a type for the response data object here.
-type Matches = {"sun": string, "moon": string, "rising": string}
+type Matches = {
+  matches: string[]
+}
 
 function postAndUpdate(): void {
   // TODO: empty the suggestionList (you want new suggestions each time someone types something new)
@@ -39,23 +45,18 @@ function postAndUpdate(): void {
   //  HINT: check out the POST REQUESTS section of the lab and of the front-end guide.
   //  Make sure you add "Access-Control-Allow-Origin":"*" to your headers.
   //  Remember to add a type annotation for the response data using the Matches type you defined above!
-  fetch("/results", {
-    method: "post",
-    body: JSON.stringify({
-      json: postParameters
-    }),
+  fetch("http://localhost:4567/results", {
+    method: "POST",
+    body: JSON.stringify(postParameters),
     headers: {
       "Access-Control-Allow-Origin" : "*"
-    }
+    },
   })
       .then((response: Response) => response.json())
-      .then(data => {
-        console.log('Success:', data)
-        updateSuggestions(data.matches)
-      })
-      .catch((error) => {
-        console.error('Error:', error)
-      })
+          .then((data: Matches) => {
+          // console.log('Success:', data)
+          updateSuggestions(data.matches)
+        })
 
   // TODO: Call and fill in the updateSuggestions method in one of the .then statements in the Promise
   //  Parse the JSON in the response object
@@ -68,8 +69,8 @@ function updateSuggestions(matches: string[]): void {
   //  NOTE: you should use <li> (list item) tags to wrap each element. When you do so,
   //  make sure to add the attribute 'tabindex="0"' (for example: <li tabindex="0">{your element}</li>).
   //  This makes each element selectable via screen reader.
-  for (const match of matches) {
-    suggestions.innerHTML += `<li tabindex="0">match</li>`
+  for (let match of matches) {
+    suggestions.innerHTML += `<li tabindex="0">`+match+`</li>`
   }
 }
 
@@ -78,19 +79,19 @@ function updateSuggestions(matches: string[]): void {
 //  values for the sun, moon, and rising using updateValues. Then call postAndUpdate().
 //  HINT: the listener callback function should be asynchronous and wait until the values are
 //  updated before calling postAndUpdate().
-// document.addEventListener("keyup", () => {
-//   updateValues("Leo", "Leo", "Libra")
-//       .then(r => postAndUpdate())
-// })
-document.addEventListener("keyup", () => console.log("hi"))
 
+document.addEventListener("keyup", async input => {
+  if (input.key == "Enter") {
+    await updateValues("Leo", "Leo", "Libra")
+    postAndUpdate()
+  }
+})
 
 async function updateValues(sunval: string, moonval: string, risingval: string): Promise<void>{
   // This line asynchronously waits 1 second before updating the values.
   // It's unnecessary here, but it simulates asynchronous behavior you often have to account for.
   await new Promise(resolve => setTimeout(resolve, 1000));
-
-  sun.value = sunval;
-  moon.value = moonval;
-  rising.value = risingval;
+  sunChange.value = sunval;
+  moonChange.value = moonval;
+  risingChange.value = risingval;
 }

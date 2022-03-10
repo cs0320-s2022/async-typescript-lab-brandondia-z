@@ -36,22 +36,17 @@ function postAndUpdate() {
     //  HINT: check out the POST REQUESTS section of the lab and of the front-end guide.
     //  Make sure you add "Access-Control-Allow-Origin":"*" to your headers.
     //  Remember to add a type annotation for the response data using the Matches type you defined above!
-    fetch("/results", {
-        method: "post",
-        body: JSON.stringify({
-            json: postParameters
-        }),
+    fetch("http://localhost:4567/results", {
+        method: "POST",
+        body: JSON.stringify(postParameters),
         headers: {
             "Access-Control-Allow-Origin": "*"
-        }
+        },
     })
         .then((response) => response.json())
-        .then(data => {
-        console.log('Success:', data);
+        .then((data) => {
+        // console.log('Success:', data)
         updateSuggestions(data.matches);
-    })
-        .catch((error) => {
-        console.error('Error:', error);
     });
     // TODO: Call and fill in the updateSuggestions method in one of the .then statements in the Promise
     //  Parse the JSON in the response object
@@ -63,8 +58,8 @@ function updateSuggestions(matches) {
     //  NOTE: you should use <li> (list item) tags to wrap each element. When you do so,
     //  make sure to add the attribute 'tabindex="0"' (for example: <li tabindex="0">{your element}</li>).
     //  This makes each element selectable via screen reader.
-    for (const match of matches) {
-        suggestions.innerHTML += `<li tabindex="0">match</li>`;
+    for (let match of matches) {
+        suggestions.innerHTML += `<li tabindex="0">` + match + `</li>`;
     }
 }
 // TODO: create an event listener to the document (document.addEventListener) that detects "keyup".
@@ -72,18 +67,19 @@ function updateSuggestions(matches) {
 //  values for the sun, moon, and rising using updateValues. Then call postAndUpdate().
 //  HINT: the listener callback function should be asynchronous and wait until the values are
 //  updated before calling postAndUpdate().
-// document.addEventListener("keyup", () => {
-//   updateValues("Leo", "Leo", "Libra")
-//       .then(r => postAndUpdate())
-// })
-document.addEventListener("keyup", () => console.log("hi"));
+document.addEventListener("keyup", (input) => __awaiter(void 0, void 0, void 0, function* () {
+    if (input.key == "Enter") {
+        yield updateValues("Leo", "Leo", "Libra");
+        postAndUpdate();
+    }
+}));
 function updateValues(sunval, moonval, risingval) {
     return __awaiter(this, void 0, void 0, function* () {
         // This line asynchronously waits 1 second before updating the values.
         // It's unnecessary here, but it simulates asynchronous behavior you often have to account for.
         yield new Promise(resolve => setTimeout(resolve, 1000));
-        sun.value = sunval;
-        moon.value = moonval;
-        rising.value = risingval;
+        sunChange.value = sunval;
+        moonChange.value = moonval;
+        risingChange.value = risingval;
     });
 }
